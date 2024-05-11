@@ -2,11 +2,11 @@ import { useEffect, useState } from 'react';
 import './App.css';
 import { Product } from './model/product';
 import Catalog from './features/catalog/Catalog';
+import { Typography } from '@mui/material';
 
-const initialProducts: Product[] = [];
 
 function App() {
-  const [products, setProducts] = useState(initialProducts);
+  const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
     fetch('http://localhost:8080/api/products')
@@ -16,14 +16,8 @@ function App() {
 
   return (
     <div>
+      <Typography variant='h3'>My Shop</Typography>
       <Catalog bien1={products} ></Catalog>
-      <ul>
-        {products.map((product, index) => (
-          <li key={index}>
-            {product.name} - price: {product.unitPrice}
-          </li>
-        ))}
-      </ul>
     </div>
   );
 }
