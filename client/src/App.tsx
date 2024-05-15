@@ -3,6 +3,7 @@ import './App.css';
 import { Product } from './model/product';
 import Catalog from './features/catalog/Catalog';
 import { Typography } from '@mui/material';
+import ProductForm from './features/product-crud/ProductForm';
 
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
   return (
     <div>
       <Typography variant='h3'>My Shop</Typography>
+      <ProductForm />
       <Catalog bien1={products} ></Catalog>
     </div>
   );
