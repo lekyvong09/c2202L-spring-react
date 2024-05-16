@@ -5,13 +5,12 @@ interface Props {
     bien1: Product[];
 }
 
-export default function Catalog(props: Props) { /// properties
-    console.log(props);
-    
+export default function Catalog({bien1}: Props) { /// properties
+
     return (
         <>
             <List>
-                {props.bien1.map((product, index) => (
+                {bien1.length > 0 && bien1.map((product, index) => (
                     <ListItem key={index}>
                         <ListItemAvatar>
                             <Avatar src={`http://localhost:8080/api/file/image/${product.imageUrl}`}></Avatar>
