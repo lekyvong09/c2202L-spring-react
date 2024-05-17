@@ -5,8 +5,13 @@ import { useState } from "react";
 import { Controller, FieldValues, useForm } from "react-hook-form";
 import {yupResolver} from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import { Product } from "../../model/product";
 
-export default function ProductForm() {
+interface Props {
+    onAddProduct: (data: Product) => void;
+}
+
+export default function ProductForm({onAddProduct}: Props) {
     const productSchema = yup.object({
         name: yup.string().required('name is required'),
         description: yup.string().required('description is required'),
@@ -78,6 +83,8 @@ export default function ProductForm() {
                 unitsInStock: 0,
                 productCategory: ''
             });
+
+            onAddProduct(response.data);
         } catch (error) {
             console.log(error);
         }

@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 import './App.css';
 import { Product } from './model/product';
-import Catalog from './features/catalog/Catalog';
 import { Typography } from '@mui/material';
-import ProductForm from './features/product-crud/ProductForm';
+import ProductPage from './features/product-crud/ProductPage';
 
 
 function App() {
@@ -15,11 +14,14 @@ function App() {
       .then(data => setProducts(data));
   }, []);
 
+  const addProduct = (data: Product) => {
+    setProducts((previousState) => [...previousState, {...data}]);
+  }
+
   return (
     <div>
       <Typography variant='h3'>My Shop</Typography>
-      <ProductForm />
-      <Catalog bien1={products} ></Catalog>
+      <ProductPage products={products} onAddProduct={addProduct}></ProductPage>
     </div>
   );
 }
