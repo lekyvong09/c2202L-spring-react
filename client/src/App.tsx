@@ -4,6 +4,12 @@ import { Product } from './model/product';
 import { Container, createTheme, CssBaseline, ThemeProvider } from '@mui/material';
 import ProductPage from './features/product-crud/ProductPage';
 import Header from './layout/Header';
+import { Route, Routes } from 'react-router-dom';
+import HomePage from './features/home/HomePage';
+import Catalog from './features/catalog/Catalog';
+import ProductDetail from './features/catalog/ProductDetail';
+import AboutPage from './features/about/AboutPage';
+import ContactPage from './features/contact/ContactPage';
 
 
 function App() {
@@ -31,9 +37,18 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Header></Header>
+      <Header darkMode={darkMode} onSetDarkMode={setDarkMode}></Header>
       <Container>
-        <ProductPage products={products} onAddProduct={addProduct}></ProductPage>
+
+        <Routes>
+          <Route path='/' element={<HomePage />}  />
+          <Route path='catalog' element={<Catalog />}  />
+          <Route path='catalog/:productId' element={<ProductDetail />}  />
+          <Route path='about' element={<AboutPage />}  />
+          <Route path='contact' element={<ContactPage />}  />
+          <Route path='manage-product' element={<ProductPage products={products} onAddProduct={addProduct} />} />
+        </Routes>
+
       </Container>
     </ThemeProvider>
   );
