@@ -1,13 +1,18 @@
+import { useEffect, useState } from "react";
 import { Product } from "../../model/product";
 import ProductList from "./ProductList";
+import axios, { AxiosResponse } from "axios";
 
 
-interface Props {
-    products: Product[];
-}
+export default function Catalog() { /// properties
+    const [products, setProducts] = useState<Product[]>([]);
 
-export default function Catalog(props: Props) { /// properties
+    useEffect(() => {
+        axios.get('products')
+            .then((response: AxiosResponse) => setProducts(response.data))
+    }, []);
+
     return (
-        <ProductList products={props.products} />
+        <ProductList products={products} />
     );
 }

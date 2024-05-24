@@ -1,16 +1,25 @@
 import { Avatar, List, ListItem, ListItemAvatar, ListItemText } from "@mui/material";
 import { Product } from "../../model/product";
 import ProductForm from "./ProductForm";
+import { useEffect, useState } from "react";
+import axios, { AxiosResponse } from "axios";
 
-interface Props {
-    products: Product[];
-    onAddProduct: (data: Product) => void;
-}
 
-export default function ProductPage({products, onAddProduct}: Props) {
+export default function ProductPage() {
+    const [products, setProducts] = useState<Product[]>([]);
+
+    useEffect(() => {
+        axios.get('products')
+            .then((response: AxiosResponse) => setProducts(response.data))
+    }, []);
+    
+    const addProduct = (data: Product) => {
+        setProducts((previousState) => [...previousState, {...data}]);
+    }
+
     return (
         <>
-            <ProductForm onAddProduct={onAddProduct}></ProductForm>
+            <ProductForm onAddProduct={addProduct}></ProductForm>
             <List>
                 {products.length > 0 && products.map((product, index) => (
                     <ListItem key={index}>
