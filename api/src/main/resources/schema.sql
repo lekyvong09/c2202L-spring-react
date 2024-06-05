@@ -23,4 +23,22 @@ CREATE TABLE IF NOT EXISTS product (
     CONSTRAINT fk_product_category FOREIGN KEY (category_id) REFERENCES product_category (id)
 );
 
+DROP TABLE IF EXISTS basket;
+CREATE TABLE IF NOT EXISTS basket (
+    id BIGINT(20) NOT NULL AUTO_INCREMENT,
+    buyer_id VARCHAR(255) DEFAULT NULL,
+    PRIMARY KEY (id)
+);
+
+DROP TABLE IF EXISTS basket_item;
+CREATE TABLE IF NOT EXISTS basket_item (
+    id BIGINT(20) NOT NULL AUTO_INCREMENT,
+    quantity INT(11) DEFAULT NULL,
+    basket_id BIGINT(20) DEFAULT NULL,
+    product_id int(11) DEFAULT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT fk_basket_item_product FOREIGN KEY (product_id) REFERENCES product (id),
+    CONSTRAINT fk_basket_item_basket FOREIGN KEY (basket_id) REFERENCES basket (id)
+);
+
 SET FOREIGN_KEY_CHECKS=1;
