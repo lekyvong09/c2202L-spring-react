@@ -1,13 +1,24 @@
 import { Avatar, Button, Card, CardActions, CardContent, CardHeader, CardMedia, Typography } from "@mui/material";
 import { Product } from "../../model/product";
 import { Link } from "react-router-dom";
+import { useState } from "react";
+import axios, { AxiosResponse } from "axios";
+import { LoadingButton } from "@mui/lab";
 
 interface Props {
     product: Product;
 }
 
 export default function ProductCard(props: Props) {
-    // console.log(props.product);
+    const [loading, setLoading] = useState(false);
+
+    const handleAddItem = (productId: number) => {
+        setLoading(true);
+        axios.post(`baskets?productId=${productId}&quantity=1`, {})
+            .then((response: AxiosResponse) => console.log(response))
+            .catch(error => console.log(error))
+            .finally(() => setLoading(false));
+    }
 
     return (
         <Card sx={{ maxWidth: 345 }}>
@@ -35,7 +46,11 @@ export default function ProductCard(props: Props) {
                 </Typography>
             </CardContent>
             <CardActions>
-                <Button size="small">Add to cart</Button>
+                <LoadingButton 
+                    size="small"
+                    loading={loading}
+                    onClick={() => handleAddItem(props.product.id)}
+                >Add to cart</LoadingButton>
                 <Button 
                     size="small"
                     component={Link}
