@@ -1,9 +1,10 @@
 import { Avatar, Button, Card, CardActions, CardContent, CardHeader, CardMedia, Typography } from "@mui/material";
 import { Product } from "../../model/product";
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import axios, { AxiosResponse } from "axios";
 import { LoadingButton } from "@mui/lab";
+import { StoreContext } from "../../context/StoreContext";
 
 interface Props {
     product: Product;
@@ -11,11 +12,12 @@ interface Props {
 
 export default function ProductCard(props: Props) {
     const [loading, setLoading] = useState(false);
+    const {setBasket} = useContext(StoreContext);
 
     const handleAddItem = (productId: number) => {
         setLoading(true);
         axios.post(`baskets?productId=${productId}&quantity=1`, {})
-            .then((response: AxiosResponse) => console.log(response))
+            .then((response: AxiosResponse) => setBasket(response.data))
             .catch(error => console.log(error))
             .finally(() => setLoading(false));
     }

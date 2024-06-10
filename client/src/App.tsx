@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import './App.css';
 import { Container, createTheme, CssBaseline, ThemeProvider } from '@mui/material';
 import ProductPage from './features/product-crud/ProductPage';
@@ -13,9 +13,16 @@ import { ToastContainer } from 'react-toastify';
 import ServerError from './features/error/ServerError';
 import { AxiosInterceptor } from './interceptor/AxiosInterceptor';
 import NotFound from './features/error/NotFound';
+import BasketPage from './features/basket/BasketPage';
+import { getCookie } from './util/util';
+import axios, { AxiosResponse } from 'axios';
+import { StoreContext } from './context/StoreContext';
+import LoadingComponent from './layout/LoadingComponent';
 
 
 function App() {
+  const {setBasket} = useContext(StoreContext);
+  const [loading, setLoading] = useState<boolean>();
 
   const [darkMode, setDarkMode] = useState(false);
   const paletteMode = darkMode ? 'dark' : 'light';
@@ -25,6 +32,25 @@ function App() {
       mode: paletteMode,
     },
   });
+
+
+  useEffect(() => {
+    const buyerId = getCookie('buyerId');
+    console.log(buyerId);
+    if (buyerId) {
+      axios.get('baskets')
+        .then((response: AxiosResponse) => setBasket(response.data))
+        .catch(err => console.log(err))
+        .finally(() => setLoading(false));
+    } else {
+      setLoading(false);
+    }
+  }, [setBasket]);
+
+
+  if (loading) {
+    return <LoadingComponent />
+  }
 
 
   return (
@@ -38,11 +64,13 @@ function App() {
             <Route path='/' element={<HomePage />}  />
             <Route path='catalog' element={<Catalog />}  />
             <Route path='catalog/:productId' element={<ProductDetail />}  />
+            <Route path='basket' element={<BasketPage />}  />
             <Route path='about' element={<AboutPage />}  />
             <Route path='contact' element={<ContactPage />}  />
             <Route path='manage-product' element={<ProductPage />} />
             <Route path='server-error' element={<ServerError />} />
             <Route path='not-found' element={<NotFound />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
 
         </Container>

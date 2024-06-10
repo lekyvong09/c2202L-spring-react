@@ -6,6 +6,7 @@ import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom';
 import axios from 'axios';
 import 'react-toastify/dist/ReactToastify.css';
+import { StoreProvider } from './context/StoreProvider';
 
 
 axios.defaults.baseURL = process.env.REACT_APP_BASE_URL;
@@ -18,7 +19,9 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <BrowserRouter>
-      <App />
+      <StoreProvider>
+        <App />
+      </StoreProvider>
     </BrowserRouter>
   </React.StrictMode>
 );
