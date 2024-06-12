@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -53,6 +54,7 @@ public class BasketController {
                     item.getProduct().getCategory().getCategoryName(),
                     item.getQuantity()
                 ))
+                .sorted(Comparator.comparingLong(i -> i.getProductId()))
                 .collect(Collectors.toList());
 
         BasketDto basketDto = new BasketDto();
@@ -97,6 +99,7 @@ public class BasketController {
                         item.getProduct().getCategory().getCategoryName(),
                         item.getQuantity()
                 ))
+                .sorted(Comparator.comparingLong(i -> i.getProductId()))
                 .collect(Collectors.toList());
 
         BasketDto basketDto = new BasketDto();
@@ -145,6 +148,7 @@ public class BasketController {
                         item.getProduct().getCategory().getCategoryName(),
                         item.getQuantity()
                 ))
+                .sorted(Comparator.comparingLong(i -> i.getProductId()))
                 .collect(Collectors.toList());
 
         BasketDto basketDto = new BasketDto();
