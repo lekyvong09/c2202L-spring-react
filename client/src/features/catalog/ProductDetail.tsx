@@ -1,19 +1,52 @@
-import { Divider, Grid, Table, TableBody, TableCell, TableContainer, TableRow, Typography } from "@mui/material";
-import axios from "axios";
-import { useEffect, useState } from "react";
+import { Divider, Grid, Table, TableBody, TableCell, TableContainer, TableRow, TextField, Typography } from "@mui/material";
+import axios, { AxiosResponse } from "axios";
+import { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Product } from "../../model/product";
+import { LoadingButton } from "@mui/lab";
+import { StoreContext } from "../../context/StoreContext";
 
 export default function ProductDetail() {
     let params = useParams();
     const [product, setProduct] = useState<Product | null>(null);
+    const [quantity, setQuantity] = useState(0);
+    const {basket, setBasket, removeItem} = useContext(StoreContext);
+    const [submitting, setSubmitting] = useState(false);
+
+    const basketItem = basket?.basketItems.find(i => i.productId === product?.id);
 
     useEffect(() => {
+        if (basketItem) {
+            setQuantity(basketItem?.quantity);
+        }
+
         axios.get(`products/${params.productId}`)
             .then(response => setProduct(response.data))
             .catch(error => console.log(error));
-    }, [params.productId]);
+    }, [basketItem, params.productId]);
 
+    const handleInputChange = (event: any) => {
+        if (event.target.value >=0) {
+            setQuantity(event.target.value);
+        }
+    }
+
+    const handleUpdateCart = () => {
+        setSubmitting(true);
+        if (!basketItem || quantity > basketItem?.quantity) {
+            const updatedQuantity = basketItem ? quantity - basketItem.quantity : quantity;
+            axios.post(`baskets?productId=${product?.id}&quantity=${updatedQuantity}`, {})
+                .then((response : AxiosResponse) => setBasket(response.data))
+                .catch(err => console.log(err))
+                .finally(() => setSubmitting(false));
+        } else {
+            const updatedQuantity = basketItem.quantity - quantity;
+            axios.delete(`baskets?productId=${product?.id}&quantity=${updatedQuantity}`)
+                .then(() => removeItem(product?.id!, updatedQuantity))
+                .catch(err => console.log(err))
+                .finally(() => setSubmitting(false));
+        }
+    }
 
     if (!product)
         return <h3>Product not found</h3>
@@ -53,6 +86,34 @@ export default function ProductDetail() {
                         </TableBody>
                     </Table>
                 </TableContainer>
+
+                <Grid container spacing={2}>
+                    <Grid item xs={6}>
+                        <TextField
+                            variant="outlined"
+                            type="number"
+                            label="Quantity"
+                            fullWidth
+                            value={quantity}
+                            onChange={handleInputChange}
+                        />
+                    </Grid>
+                    <Grid item xs={6}>
+                        <LoadingButton
+                            disabled={quantity === basketItem?.quantity || (!basketItem && quantity === 0)}
+                            loading={submitting}
+                            variant="contained"
+                            color="primary"
+                            size="large"
+                            fullWidth
+                            sx={{height: '55px'}}
+                            onClick={handleUpdateCart}
+                        >
+                            Update quantity
+                        </LoadingButton>
+                    </Grid>
+                </Grid>
+
             </Grid>
         </Grid>
     );
