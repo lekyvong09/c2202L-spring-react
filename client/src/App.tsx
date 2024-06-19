@@ -18,6 +18,7 @@ import { getCookie } from './util/util';
 import axios, { AxiosResponse } from 'axios';
 import { StoreContext } from './context/StoreContext';
 import LoadingComponent from './layout/LoadingComponent';
+import CheckoutPage from './features/checkout/CheckoutPage';
 
 
 function App() {
@@ -65,6 +66,7 @@ function App() {
             <Route path='catalog' element={<Catalog />}  />
             <Route path='catalog/:productId' element={<ProductDetail />}  />
             <Route path='basket' element={<BasketPage />}  />
+            <Route path='checkout' element={<CheckoutPage />}  />
             <Route path='about' element={<AboutPage />}  />
             <Route path='contact' element={<ContactPage />}  />
             <Route path='manage-product' element={<ProductPage />} />
