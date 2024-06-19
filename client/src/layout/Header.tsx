@@ -2,7 +2,8 @@ import { ShoppingCart } from "@mui/icons-material";
 import { AppBar, Badge, Box, IconButton, List, ListItem, Switch, Toolbar, Typography } from "@mui/material";
 import * as React from 'react';
 import { Link, NavLink } from "react-router-dom";
-import { StoreContext } from "../context/StoreContext";
+import { useSelector } from "react-redux";
+import { BasketItem } from "../model/basket";
 
 interface Props {
     darkMode: boolean,
@@ -10,9 +11,9 @@ interface Props {
 }
 
 export default function Header(props: Props) {
-    const {basket} = React.useContext(StoreContext);
+    const {basket} = useSelector((state: any) => state.basket);
     /// var sum = 0; for (var i = 0; i < basketItems.length(); i++) {sum = sum + basket.Items[i].quantity;}
-    const itemCount = basket?.basketItems.reduce((sum, item) => sum + item.quantity, 0);
+    const itemCount = basket?.basketItems.reduce((sum: number, item: BasketItem) => sum + item.quantity, 0);
 
     const midLinks = [
         {title: 'catalog', path: '/catalog'},

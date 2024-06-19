@@ -1,13 +1,13 @@
 import { Paper, Table, TableBody, TableCell, TableContainer, TableRow } from "@mui/material";
-import { useContext } from "react";
-import { StoreContext } from "../../context/StoreContext";
+import { useSelector } from "react-redux";
+import { BasketItem } from "../../model/basket";
 
 
 export default function BasketSummary() {
-    const {basket} = useContext(StoreContext);
+    const {basket} = useSelector((state: any) => state.basket);
 
     const subtotal = basket 
-        ? basket?.basketItems.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0) 
+        ? basket?.basketItems.reduce((sum: number, item: BasketItem) => sum + item.quantity * item.unitPrice, 0) 
         : 0;
 
     const deliveryFee = subtotal > 100 ? 0 : 5;

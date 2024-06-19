@@ -19,10 +19,11 @@ import axios, { AxiosResponse } from 'axios';
 import { StoreContext } from './context/StoreContext';
 import LoadingComponent from './layout/LoadingComponent';
 import CheckoutPage from './features/checkout/CheckoutPage';
+import { store } from './store';
+import { setBasketReducer } from './features/basket/basketSlice';
 
 
 function App() {
-  const {setBasket} = useContext(StoreContext);
   const [loading, setLoading] = useState<boolean>();
 
   const [darkMode, setDarkMode] = useState(false);
@@ -40,13 +41,13 @@ function App() {
     console.log(buyerId);
     if (buyerId) {
       axios.get('baskets')
-        .then((response: AxiosResponse) => setBasket(response.data))
+        .then((response: AxiosResponse) => store.dispatch(setBasketReducer(response.data)))
         .catch(err => console.log(err))
         .finally(() => setLoading(false));
     } else {
       setLoading(false);
     }
-  }, [setBasket]);
+  }, []);
 
 
   if (loading) {

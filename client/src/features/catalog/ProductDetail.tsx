@@ -1,19 +1,22 @@
 import { Divider, Grid, Table, TableBody, TableCell, TableContainer, TableRow, TextField, Typography } from "@mui/material";
 import axios, { AxiosResponse } from "axios";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Product } from "../../model/product";
 import { LoadingButton } from "@mui/lab";
-import { StoreContext } from "../../context/StoreContext";
+import { useSelector } from "react-redux";
+import { BasketItem } from "../../model/basket";
+import { store } from "../../store";
+import { removeItemReducer, setBasketReducer } from "../basket/basketSlice";
 
 export default function ProductDetail() {
     let params = useParams();
     const [product, setProduct] = useState<Product | null>(null);
     const [quantity, setQuantity] = useState(0);
-    const {basket, setBasket, removeItem} = useContext(StoreContext);
+    const {basket} = useSelector((state: any) => state.basket);
     const [submitting, setSubmitting] = useState(false);
 
-    const basketItem = basket?.basketItems.find(i => i.productId === product?.id);
+    const basketItem = basket?.basketItems.find((i: BasketItem) => i.productId === product?.id);
 
     useEffect(() => {
         if (basketItem) {
@@ -36,13 +39,13 @@ export default function ProductDetail() {
         if (!basketItem || quantity > basketItem?.quantity) {
             const updatedQuantity = basketItem ? quantity - basketItem.quantity : quantity;
             axios.post(`baskets?productId=${product?.id}&quantity=${updatedQuantity}`, {})
-                .then((response : AxiosResponse) => setBasket(response.data))
+                .then((response : AxiosResponse) => store.dispatch(setBasketReducer(response.data)))
                 .catch(err => console.log(err))
                 .finally(() => setSubmitting(false));
         } else {
             const updatedQuantity = basketItem.quantity - quantity;
             axios.delete(`baskets?productId=${product?.id}&quantity=${updatedQuantity}`)
-                .then(() => removeItem(product?.id!, updatedQuantity))
+                .then(() => store.dispatch(removeItemReducer({productId: product?.id!, quantity: updatedQuantity})))
                 .catch(err => console.log(err))
                 .finally(() => setSubmitting(false));
         }

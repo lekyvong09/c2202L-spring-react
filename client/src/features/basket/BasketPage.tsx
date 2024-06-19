@@ -1,15 +1,18 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { Box, Button, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
 import { AddCircle, Delete, RemoveCircle } from "@mui/icons-material";
-import { StoreContext } from "../../context/StoreContext";
 import { LoadingButton } from "@mui/lab";
 import axios, { AxiosResponse } from "axios";
 import BasketSummary from "./BasketSummary";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { store } from "../../store";
+import { removeItemReducer, setBasketReducer } from "./basketSlice";
+import { BasketItem } from "../../model/basket";
 
 
 export default function BasketPage() {
-    const {basket, setBasket, removeItem} = useContext(StoreContext);
+    const {basket} = useSelector((state: any) => state.basket);
     const [status, setStatus] = useState({
         loading: false,
         name: ''
@@ -19,7 +22,7 @@ export default function BasketPage() {
     const handleAddItem = (productId: number, name: string) => {
         setStatus({loading: true, name: name});
         axios.post(`baskets?productId=${productId}&quantity=1`, {})
-            .then((response: AxiosResponse) => setBasket(response.data))
+            .then((response: AxiosResponse) => store.dispatch(setBasketReducer((response.data))))
             .catch(err => console.log(err))
             .finally(() => setStatus({loading: false, name: name}));
     }
@@ -27,7 +30,7 @@ export default function BasketPage() {
     const handleRemoveItem = (productId: number, quantity: number, name: string) => {
         setStatus({loading: true, name: name});
         axios.delete(`baskets?productId=${productId}&quantity=${quantity}`)
-            .then(_ => removeItem(productId, quantity))
+            .then(_ => store.dispatch(removeItemReducer({productId: productId, quantity: quantity})))
             .catch(err => console.log(err))
             .finally(() => setStatus({loading: false, name: name}));
     }
@@ -49,7 +52,7 @@ export default function BasketPage() {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {basket?.basketItems.map(item => (
+                    {basket?.basketItems.map((item: BasketItem) => (
                         <TableRow key={item.productId}>
                             <TableCell>
                                 <Box display='flex' alignItems='center'>
