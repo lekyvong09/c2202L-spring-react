@@ -1,39 +1,16 @@
-import { useState } from "react";
 import { Box, Button, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
 import { AddCircle, Delete, RemoveCircle } from "@mui/icons-material";
 import { LoadingButton } from "@mui/lab";
-import axios, { AxiosResponse } from "axios";
 import BasketSummary from "./BasketSummary";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { store } from "../../store";
-import { removeItemReducer, setBasketReducer } from "./basketSlice";
+import { addBasketItemThunk, removeBasketItemThunk } from "./basketSlice";
 import { BasketItem } from "../../model/basket";
 
 
 export default function BasketPage() {
-    const {basket} = useSelector((state: any) => state.basket);
-    const [status, setStatus] = useState({
-        loading: false,
-        name: ''
-    });
-
-
-    const handleAddItem = (productId: number, name: string) => {
-        setStatus({loading: true, name: name});
-        axios.post(`baskets?productId=${productId}&quantity=1`, {})
-            .then((response: AxiosResponse) => store.dispatch(setBasketReducer((response.data))))
-            .catch(err => console.log(err))
-            .finally(() => setStatus({loading: false, name: name}));
-    }
-
-    const handleRemoveItem = (productId: number, quantity: number, name: string) => {
-        setStatus({loading: true, name: name});
-        axios.delete(`baskets?productId=${productId}&quantity=${quantity}`)
-            .then(_ => store.dispatch(removeItemReducer({productId: productId, quantity: quantity})))
-            .catch(err => console.log(err))
-            .finally(() => setStatus({loading: false, name: name}));
-    }
+    const {basket, status} = useSelector((state: any) => state.basket);
 
     if (!basket)
         return <Typography variant="h3">Basket is empty</Typography>
@@ -67,16 +44,16 @@ export default function BasketPage() {
                             <TableCell align="center"  width={200}>
                                 <LoadingButton 
                                     color="error"
-                                    loading={status.loading && status.name === 'remove' + item.productId}
-                                    onClick={() => handleRemoveItem(item.productId, 1, 'remove' + item.productId)}
+                                    loading={status === 'loadingRemoveItem' + item.productId + 'rem'}
+                                    onClick={() => store.dispatch(removeBasketItemThunk({productId:item.productId, quantity: 1, name: 'rem'}))}
                                 >
                                     <RemoveCircle />
                                 </LoadingButton>
                                 {item.quantity}
                                 <LoadingButton 
                                     color="secondary"
-                                    loading={status.loading && status.name === 'add' + item.productId}
-                                    onClick={() => handleAddItem(item.productId, 'add' + item.productId)}
+                                    loading={status === 'loadingAddItem' + item.productId}
+                                    onClick={() => store.dispatch(addBasketItemThunk({productId:item.productId}))}
                                 >
                                     <AddCircle />
                                 </LoadingButton>
@@ -86,8 +63,8 @@ export default function BasketPage() {
                             <TableCell>
                                 <LoadingButton 
                                     color="error"
-                                    loading={status.loading && status.name === 'delete' + item.productId}
-                                    onClick={() => handleRemoveItem(item.productId, item.quantity, 'delete' + item.productId)}
+                                    loading={status === 'loadingRemoveItem' + item.productId + 'del'}
+                                    onClick={() => store.dispatch(removeBasketItemThunk({productId: item.productId, quantity: item.quantity, name: 'del'}))}
                                 >
                                     <Delete />
                                 </LoadingButton>

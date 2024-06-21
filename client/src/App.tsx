@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import './App.css';
 import { Container, createTheme, CssBaseline, ThemeProvider } from '@mui/material';
 import ProductPage from './features/product-crud/ProductPage';
@@ -16,7 +16,6 @@ import NotFound from './features/error/NotFound';
 import BasketPage from './features/basket/BasketPage';
 import { getCookie } from './util/util';
 import axios, { AxiosResponse } from 'axios';
-import { StoreContext } from './context/StoreContext';
 import LoadingComponent from './layout/LoadingComponent';
 import CheckoutPage from './features/checkout/CheckoutPage';
 import { store } from './store';
