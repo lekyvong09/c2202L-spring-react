@@ -15,6 +15,9 @@ export function AxiosInterceptor(props: any) {
             switch (error.response?.status) {
                 case 400:
                     if (error.response?.data.message) {
+                        if (error.response?.data.message !== "Cannot find the basket") {
+                            toast.error(error.response?.data.message, {theme: 'colored'});
+                        }
                         const errors = error.response?.data.message.split('; ').filter((message:string) => message !== '');
                         throw errors;
                     }

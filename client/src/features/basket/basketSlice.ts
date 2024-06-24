@@ -22,7 +22,7 @@ export const addBasketItemThunk = createAsyncThunk<Basket, {productId: number, q
             return response.data;
         } catch (err : any) {
             console.log(err);
-            return thunkAPI.rejectWithValue(err.response.data);
+            return thunkAPI.rejectWithValue(err);
         }
     }
 );
@@ -34,7 +34,7 @@ export const removeBasketItemThunk = createAsyncThunk<void, {productId: number, 
             await axios.delete(`baskets?productId=${productId}&quantity=${quantity}`);
         } catch (err : any) {
             console.log(err);
-            return thunkAPI.rejectWithValue(err.response.data);
+            return thunkAPI.rejectWithValue(err);
         }
     }
 );
@@ -59,7 +59,7 @@ export const basketSlice = createSlice({
         });
         builder.addCase(addBasketItemThunk.rejected, (state, action) => {
             state.status = 'idle';
-            console.log(action);
+            console.log(action.payload);
         });
 
         builder.addCase(removeBasketItemThunk.pending, (state, action) => {
@@ -67,7 +67,7 @@ export const basketSlice = createSlice({
             state.status = 'loadingRemoveItem' + action.meta.arg.productId + action.meta.arg.name;
         });
         builder.addCase(removeBasketItemThunk.rejected, (state, action) => {
-            console.log(action);
+            console.log(action.payload);
             state.status = 'idle';
         });
         builder.addCase(removeBasketItemThunk.fulfilled, (state, action) => {

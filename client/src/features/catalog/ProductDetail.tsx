@@ -1,17 +1,20 @@
 import { Divider, Grid, Table, TableBody, TableCell, TableContainer, TableRow, TextField, Typography } from "@mui/material";
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Product } from "../../model/product";
 import { LoadingButton } from "@mui/lab";
 import { useSelector } from "react-redux";
 import { BasketItem } from "../../model/basket";
 import { store } from "../../store";
 import { addBasketItemThunk, removeBasketItemThunk } from "../basket/basketSlice";
+import { fetchProductByIdThunk, productAdapter } from "./catalogSlice";
+import LoadingComponent from "../../layout/LoadingComponent";
 
 export default function ProductDetail() {
     let params = useParams();
-    const [product, setProduct] = useState<Product | null>(null);
+    
+    const product = productAdapter.getSelectors().selectById(store.getState().catalog, +params.productId!);
+    const productStatus = useSelector((state: any) => state.catalog.status);
+
     const [quantity, setQuantity] = useState(0);
     const {basket, status} = useSelector((state: any) => state.basket);
 
@@ -22,10 +25,11 @@ export default function ProductDetail() {
             setQuantity(basketItem?.quantity);
         }
 
-        axios.get(`products/${params.productId}`)
-            .then(response => setProduct(response.data))
-            .catch(error => console.log(error));
-    }, [basketItem, params.productId]);
+        if (!product) {
+            store.dispatch(fetchProductByIdThunk(+params.productId!));
+        }
+        
+    }, [basketItem, params.productId, product]);
 
     const handleInputChange = (event: any) => {
         if (event.target.value >=0) {
@@ -42,6 +46,9 @@ export default function ProductDetail() {
             store.dispatch(removeBasketItemThunk({productId: product!.id, quantity: updatedQuantity}))
         }
     }
+
+    if (productStatus.includes('loading'))
+        return <LoadingComponent />
 
     if (!product)
         return <h3>Product not found</h3>
