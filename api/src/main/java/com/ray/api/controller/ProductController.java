@@ -4,11 +4,16 @@ package com.ray.api.controller;
 import com.ray.api.dao.ProductCategoryRepository;
 import com.ray.api.dao.ProductRepository;
 import com.ray.api.dao.ProductSpecification;
+import com.ray.api.dto.PageInfo;
 import com.ray.api.dto.ProductReturnDto;
 import com.ray.api.entity.Product;
 import com.ray.api.entity.ProductCategory;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,9 +26,7 @@ import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.ray.api.dao.ProductSpecification.*;
@@ -104,17 +107,39 @@ public class ProductController {
 
 
     @GetMapping("/search")
-    public ResponseEntity<List<ProductReturnDto>> searchProduct(@RequestParam(value="name", defaultValue = "all") String name,
-                                                                @RequestParam(value="brand", defaultValue = "all") String brand,
-                                                                @RequestParam(value="category", defaultValue = "all") String category){
-        List<Product> products = productRepository.findAll(
+    public ResponseEntity<Map<String, Object>> searchProduct(@RequestParam(value="name", defaultValue = "all") String name,
+                                                             @RequestParam(value="brand", defaultValue = "all") String brand,
+                                                             @RequestParam(value="category", defaultValue = "all") String category,
+                                                             @RequestParam(value = "pageNumber", defaultValue = "0") Integer pageNumber,
+                                                             @RequestParam(value = "pageSize", defaultValue = "1000") Integer pageSize,
+                                                             @RequestParam(value = "sort", defaultValue = "name") String sortBy){
+        Page<Product> products = productRepository.findAll(
                 Specification.where(searchByName(name)
                         .and(filterByBrand(brand))
                         .and(productSpecification.filterByCategoryId(category))
-                ));
+                ),
+                PageRequest.of(
+                        pageNumber,
+                        pageSize,
+                        sortBy.equals("priceAsc")
+                            ? Sort.by("unitPrice").ascending()
+                            : sortBy.equals("priceDesc")
+                                ? Sort.by("unitPrice").descending()
+                                : Sort.by("name").ascending()
+                )
+        );
 
         List<ProductReturnDto> returnDtoList = products.stream().map(item -> new ProductReturnDto(item)).collect(Collectors.toList());
 
-        return new ResponseEntity<>(returnDtoList, HttpStatus.OK);
+        PageInfo myPage = new PageInfo(products.getNumber(),
+                                        products.getTotalElements(),
+                                        products.getTotalPages(),
+                                        products.getSize());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("data", returnDtoList);
+        response.put("page", myPage);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
