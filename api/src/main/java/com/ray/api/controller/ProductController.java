@@ -8,6 +8,7 @@ import com.ray.api.entity.Product;
 import com.ray.api.entity.ProductCategory;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MimeTypeUtils;
@@ -23,6 +24,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import static com.ray.api.dao.ProductSpecification.*;
 
 @CrossOrigin(value = "http://localhost:3000", allowCredentials = "true")
 @RestController
@@ -94,5 +97,21 @@ public class ProductController {
         productRepository.save(newProduct);
 
         return new ResponseEntity<>(new ProductReturnDto(newProduct), HttpStatus.OK);
+    }
+
+
+    @GetMapping("/search")
+    public ResponseEntity<List<ProductReturnDto>> searchProduct(@RequestParam(value="name", defaultValue = "all") String name,
+                                                                @RequestParam(value="brand", defaultValue = "all") String brand,
+                                                                @RequestParam(value="categoryId", defaultValue = "0") String categoryId){
+        List<Product> products = productRepository.findAll(
+                Specification.where(searchByName(name)
+                        .and(filterByBrand(brand))
+                        .and(filterByCategoryId(Long.valueOf(categoryId)))
+                ));
+
+        List<ProductReturnDto> returnDtoList = products.stream().map(item -> new ProductReturnDto(item)).collect(Collectors.toList());
+
+        return new ResponseEntity<>(returnDtoList, HttpStatus.OK);
     }
 }
