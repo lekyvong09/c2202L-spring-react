@@ -3,6 +3,7 @@ package com.ray.api.controller;
 
 import com.ray.api.dao.ProductCategoryRepository;
 import com.ray.api.dao.ProductRepository;
+import com.ray.api.dao.ProductSpecification;
 import com.ray.api.dto.ProductReturnDto;
 import com.ray.api.entity.Product;
 import com.ray.api.entity.ProductCategory;
@@ -33,12 +34,14 @@ import static com.ray.api.dao.ProductSpecification.*;
 public class ProductController {
     private final ProductRepository productRepository;
     private final ProductCategoryRepository productCategoryRepository;
+    private final ProductSpecification productSpecification;
 
     @Autowired
     public ProductController(ProductRepository productRepository,
-                             ProductCategoryRepository productCategoryRepository) {
+                             ProductCategoryRepository productCategoryRepository, ProductSpecification productSpecification) {
         this.productRepository = productRepository;
         this.productCategoryRepository = productCategoryRepository;
+        this.productSpecification = productSpecification;
     }
 
     @GetMapping
@@ -91,7 +94,7 @@ public class ProductController {
         newProduct.setUnitsInStock(unitsInStock);
         newProduct.setImageUrl(imageFileName);
 
-        ProductCategory category = productCategoryRepository.findByCategoryName(productCategory);
+        ProductCategory category = productCategoryRepository.findByCategoryNameIsIgnoreCase(productCategory);
         newProduct.setCategory(category);
 
         productRepository.save(newProduct);
@@ -103,11 +106,11 @@ public class ProductController {
     @GetMapping("/search")
     public ResponseEntity<List<ProductReturnDto>> searchProduct(@RequestParam(value="name", defaultValue = "all") String name,
                                                                 @RequestParam(value="brand", defaultValue = "all") String brand,
-                                                                @RequestParam(value="categoryId", defaultValue = "0") String categoryId){
+                                                                @RequestParam(value="category", defaultValue = "all") String category){
         List<Product> products = productRepository.findAll(
                 Specification.where(searchByName(name)
                         .and(filterByBrand(brand))
-                        .and(filterByCategoryId(Long.valueOf(categoryId)))
+                        .and(productSpecification.filterByCategoryId(category))
                 ));
 
         List<ProductReturnDto> returnDtoList = products.stream().map(item -> new ProductReturnDto(item)).collect(Collectors.toList());
