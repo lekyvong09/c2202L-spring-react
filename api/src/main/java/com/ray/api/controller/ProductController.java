@@ -142,4 +142,15 @@ public class ProductController {
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    @GetMapping("/get-filter")
+    public ResponseEntity<Map<String, Object>> getProductFilter() {
+        List<String> brands = productRepository.getBrand();
+        List<String> categories = productCategoryRepository.getCategoryName();
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("brands", brands);
+        response.put("categories", categories);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }
