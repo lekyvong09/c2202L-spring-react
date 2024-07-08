@@ -2,6 +2,7 @@ import { createAsyncThunk, createEntityAdapter, createSlice } from "@reduxjs/too
 import { Product, ProductParams } from "../../model/product";
 import axios from "axios";
 import { RootState } from "../../store";
+import { PaginationResponse } from "../../model/pagination";
 
 interface CatalogState {
     productLoad: boolean;
@@ -10,6 +11,7 @@ interface CatalogState {
     brands: string[];
     categories: string[];
     productParams: ProductParams;
+    pagination: PaginationResponse;
 }
 
 export const productAdapter = createEntityAdapter<Product>();
@@ -82,6 +84,12 @@ export const catalogSlice = createSlice({
             pageNumber: 1,
             pageSize: 6,
             sort: 'name'
+        },
+        pagination: {
+            number: 0,
+            totalElements: 0,
+            totalPages: 0,
+            size: 0
         }
     }),
     reducers: {
@@ -105,6 +113,7 @@ export const catalogSlice = createSlice({
             state.status = 'idle';
             state.productLoad = true;
             productAdapter.setAll(state, action.payload.data);
+            state.pagination = action.payload.page;
         });
         builder.addCase(fetchProductThunk.rejected, (state, action) => {
             state.status = 'idle';

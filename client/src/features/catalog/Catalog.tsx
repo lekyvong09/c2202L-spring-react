@@ -4,8 +4,9 @@ import LoadingComponent from "../../layout/LoadingComponent";
 import { fetchBrandAndCategoryForFilterThunk, fetchProductThunk, productAdapter, setProductParams } from "./catalogSlice";
 import { store } from "../../store";
 import { useSelector } from "react-redux";
-import { Box, FormControl, FormControlLabel, FormLabel, Grid, Pagination, Paper, Radio, RadioGroup, TextField, Typography } from "@mui/material";
+import { FormControl, FormControlLabel, FormLabel, Grid, Paper, Radio, RadioGroup, TextField } from "@mui/material";
 import CheckboxButton from "../../layout/CheckboxButton";
+import PaginationComponent from "../../layout/PaginationComponent";
 
 
 const sortOptions = [
@@ -23,7 +24,8 @@ export default function Catalog() {
         filtersLoaded,
         brands,
         categories,
-        productParams
+        productParams,
+        pagination
     } = useSelector((state: any) => state.catalog);
 
     useEffect(() => {
@@ -98,16 +100,10 @@ export default function Catalog() {
 
             <Grid item xs={3} />
             <Grid item xs={9}>
-                <Box display='flex' justifyContent='space-between' alignContent='content'>
-                    <Typography>
-                        Display 1-6 of 20 items
-                    </Typography>
-                    <Pagination 
-                        color="primary"
-                        count={10}
-                        page={2}
-                    />
-                </Box>
+                <PaginationComponent 
+                    pagination={pagination}
+                    onPageChange={(page: number) => store.dispatch(setProductParams({pageNumber: page}))}
+                />
             </Grid>
         </Grid>
     );
