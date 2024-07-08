@@ -4,7 +4,8 @@ import LoadingComponent from "../../layout/LoadingComponent";
 import { fetchBrandAndCategoryForFilterThunk, fetchProductThunk, productAdapter, setProductParams } from "./catalogSlice";
 import { store } from "../../store";
 import { useSelector } from "react-redux";
-import { Box, Checkbox, FormControl, FormControlLabel, FormGroup, FormLabel, Grid, Pagination, Paper, Radio, RadioGroup, TextField, Typography } from "@mui/material";
+import { Box, FormControl, FormControlLabel, FormLabel, Grid, Pagination, Paper, Radio, RadioGroup, TextField, Typography } from "@mui/material";
+import CheckboxButton from "../../layout/CheckboxButton";
 
 
 const sortOptions = [
@@ -74,26 +75,18 @@ export default function Catalog() {
                     </FormControl>
                 </Paper>
                 <Paper sx={{mb:2, p:2}}>
-                    <FormGroup>
-                        {categories.map((category: string) => (
-                            <FormControlLabel 
-                                label={category}
-                                key={category}
-                                control={<Checkbox />}
-                            />
-                        ))}
-                    </FormGroup>
+                    <CheckboxButton 
+                        items={categories}
+                        currentChecked={productParams.categories}
+                        onChange={(items: string[]) => store.dispatch(setProductParams({categories: items}))}
+                    />
                 </Paper>
                 <Paper sx={{mb:2, p:2}}>
-                    <FormGroup>
-                        {brands.map((brand: string) => (
-                            <FormControlLabel 
-                                label={brand}
-                                key={brand}
-                                control={<Checkbox />}
-                            />
-                        ))}
-                    </FormGroup>
+                    <CheckboxButton 
+                        items={brands}
+                        currentChecked={productParams.brands}
+                        onChange={(items: string[]) => store.dispatch(setProductParams({brands: items}))}
+                    />
                 </Paper>
 
 
