@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import ProductList from "./ProductList";
 import LoadingComponent from "../../layout/LoadingComponent";
-import { fetchBrandAndCategoryForFilterThunk, fetchProductThunk, productAdapter, setProductParams } from "./catalogSlice";
+import { fetchBrandAndCategoryForFilterThunk, fetchProductThunk, productAdapter, setPageNumber, setProductParams } from "./catalogSlice";
 import { store } from "../../store";
 import { useSelector } from "react-redux";
 import { FormControl, FormControlLabel, FormLabel, Grid, Paper, Radio, RadioGroup, TextField } from "@mui/material";
@@ -102,7 +102,7 @@ export default function Catalog() {
             <Grid item xs={9}>
                 <PaginationComponent 
                     pagination={pagination}
-                    onPageChange={(page: number) => store.dispatch(setProductParams({pageNumber: page}))}
+                    onPageChange={(page: number) => store.dispatch(setPageNumber({pageNumber: page}))}
                 />
             </Grid>
         </Grid>

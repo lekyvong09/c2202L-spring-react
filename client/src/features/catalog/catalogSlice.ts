@@ -95,6 +95,10 @@ export const catalogSlice = createSlice({
     reducers: {
         setProductParams: (state, action) => {
             state.productLoad = false;
+            state.productParams = {...state.productParams, ...action.payload, pageNumber: 1};
+        },
+        setPageNumber: (state, action) => {
+            state.productLoad = false;
             state.productParams = {...state.productParams, ...action.payload};
         },
         resetProductParams: (state, action) => {
@@ -148,4 +152,4 @@ export const catalogSlice = createSlice({
 });
 
 
-export const {setProductParams, resetProductParams} = catalogSlice.actions;
+export const {setProductParams, resetProductParams, setPageNumber} = catalogSlice.actions;

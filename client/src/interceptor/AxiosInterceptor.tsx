@@ -19,7 +19,7 @@ export function AxiosInterceptor(props: any) {
                         const errors = error.response?.data.message.split('; ').filter((message:string) => message !== '');
                         throw errors;
                     }
-                    toast.error(error.response?.data.message, {theme: 'colored'});
+                    // toast.error(error.response?.data.message, {theme: 'colored'});
                     break;
             
                 case 500:
