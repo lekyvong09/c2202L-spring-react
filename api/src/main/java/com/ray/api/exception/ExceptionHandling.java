@@ -28,6 +28,11 @@ public class ExceptionHandling {
         return createHttpResponse(HttpStatus.BAD_REQUEST, e.getMessage());
     }
 
+    @ExceptionHandler(CustomRuntimeException.class)
+    public ResponseEntity<HttpResponse> customRuntimeException(Exception e) {
+        return createHttpResponse(HttpStatus.BAD_REQUEST, e.getMessage());
+    }
+
     private ResponseEntity<HttpResponse> createHttpResponse(HttpStatus httpStatus, String message) {
         HttpResponse httpResponse = new HttpResponse(httpStatus.value(), httpStatus, httpStatus.getReasonPhrase(), message);
         return new ResponseEntity<>(httpResponse, httpStatus);
