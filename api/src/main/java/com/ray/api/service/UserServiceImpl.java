@@ -57,6 +57,16 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
+    @Override
+    public User updateUser(User user, String[] role, MultipartFile profileImage) throws IOException {
+        user.setRoles(Arrays.stream(role).map(r -> roleRepository.findRoleByName(r)).collect(Collectors.toSet()));
+        user.setAuthorities(Arrays.stream(role).map(r -> roleRepository.findRoleByName(r))
+                .flatMap(ro -> ro.getAuthorities().stream()).collect(Collectors.toSet()));
+        userRepository.save(user);
+        saveProfileImage(user, profileImage);
+        return user;
+    }
+
     private void saveProfileImage(User user, MultipartFile profileImage) throws IOException {
         if (profileImage != null) {
             Path userFolder = Paths.get(FileConstant.USER_FOLDER + user.getUsername()).toAbsolutePath().normalize();

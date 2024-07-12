@@ -7,4 +7,5 @@ import java.io.IOException;
 
 public interface UserService {
     User addNewUser(User user, String[] role, MultipartFile profileImage) throws IOException;
+    User updateUser(User user, String[] role, MultipartFile profileImage) throws IOException;
 }
