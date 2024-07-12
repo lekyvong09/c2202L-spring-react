@@ -4,6 +4,8 @@ import com.ray.api.constant.FileConstant;
 import com.ray.api.dao.RoleRepository;
 import com.ray.api.dao.UserRepository;
 import com.ray.api.entity.domain.User;
+import com.ray.api.exception.CustomRuntimeException;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,11 +32,13 @@ public class UserServiceImpl implements UserService {
     private Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final EmailService emailService;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository) {
+    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, EmailService emailService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.emailService = emailService;
     }
 
     @Override
@@ -65,6 +69,33 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
         saveProfileImage(user, profileImage);
         return user;
+    }
+
+    @Override
+    public void resetPassword(String email) throws CustomRuntimeException {
+        User user = userRepository.findUserByEmail(email);
+
+        if (user == null)
+            throw new CustomRuntimeException("No user found for the email: " + email);
+
+        String password = RandomStringUtils.randomAlphabetic(10);
+        user.setPassword(password);
+        userRepository.save(user);
+        LOGGER.info("Reset password: " + password);
+        emailService.sendSimpleMessage(user.getEmail(),
+                "Your new password",
+                "Hello " + user.getFirstName() + "\n\nYour new password is " + password + "\n\nThe Support Team");
+    }
+
+    @Override
+    public void deleteUser(long id) throws CustomRuntimeException, IOException {
+        User user = userRepository.findById(id).orElse(null);
+        if (user == null) {
+            throw new CustomRuntimeException("User not found");
+        }
+        Path userFolder = Paths.get(FileConstant.USER_FOLDER + user.getUsername()).toAbsolutePath().normalize();
+        FileUtils.deleteDirectory(new File(userFolder.toString()));
+        userRepository.deleteById(id);
     }
 
     private void saveProfileImage(User user, MultipartFile profileImage) throws IOException {

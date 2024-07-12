@@ -2,6 +2,7 @@ package com.ray.api.controller;
 
 import com.ray.api.constant.FileConstant;
 import com.ray.api.dao.UserRepository;
+import com.ray.api.dto.HttpResponse;
 import com.ray.api.dto.PageInfo;
 import com.ray.api.entity.domain.User;
 import com.ray.api.exception.CustomRuntimeException;
@@ -157,5 +158,29 @@ public class UserController {
         response.put("page", myPage);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/resetpassword/{email}")
+    public ResponseEntity<HttpResponse> resetPassword(@PathVariable("email") String email) throws CustomRuntimeException {
+        /// userService.resetPassword(email);
+        return new ResponseEntity<>(
+                new HttpResponse(
+                        HttpStatus.OK.value(),
+                        HttpStatus.OK,
+                        HttpStatus.OK.getReasonPhrase(),
+                        "The reset password has been sent to email " + email),
+                HttpStatus.OK);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<HttpResponse> deleteUser(@PathVariable("id") Long id) throws CustomRuntimeException, IOException {
+        userService.deleteUser(id);
+        return new ResponseEntity<>(
+                new HttpResponse(
+                        HttpStatus.NO_CONTENT.value(),
+                        HttpStatus.NO_CONTENT,
+                        HttpStatus.NO_CONTENT.getReasonPhrase(),
+                        "User has been deleted successfully"),
+                HttpStatus.NO_CONTENT);
     }
 }
