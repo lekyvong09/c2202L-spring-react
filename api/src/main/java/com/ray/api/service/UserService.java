@@ -12,4 +12,5 @@ public interface UserService {
     void resetPassword(String email) throws CustomRuntimeException;
     void deleteUser(long id) throws CustomRuntimeException, IOException;
     User register(User user);
+    User updateProfileImage(User user, MultipartFile profileImage) throws IOException;
 }

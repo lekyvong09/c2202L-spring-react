@@ -14,6 +14,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -179,6 +181,7 @@ public class UserController {
                 HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyAuthority('user:delete')")
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<HttpResponse> deleteUser(@PathVariable("id") Long id) throws CustomRuntimeException, IOException {
         userService.deleteUser(id);
@@ -189,5 +192,14 @@ public class UserController {
                         HttpStatus.NO_CONTENT.getReasonPhrase(),
                         "User has been deleted successfully"),
                 HttpStatus.NO_CONTENT);
+    }
+
+    @PostMapping("/updateProfileImage")
+    public ResponseEntity<User> updateProfileImage(@RequestParam("profileImage") MultipartFile profileImage)
+                throws CustomRuntimeException, IOException {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = validateNewUsernameAndEmail(username, null, null);
+        User updatedUser = userService.updateProfileImage(user, profileImage);
+        return new ResponseEntity<>(updatedUser, HttpStatus.OK);
     }
 }
