@@ -8,7 +8,7 @@ public class SecurityConstant {
     public static final String APPLICATION_NAME = "eCommerce API";
 
     public static final String[] API_PUBLIC_URLS = {
-        "/api/login", "/api/user/register",
+        "/api/login", "/api/user/register", "/api/buggy/**",
         "/api/user/resetpassword/**", "/api/user/image/**"
     };
     public static final String[] API_PUBLIC_GET_URLS = {

@@ -43,6 +43,13 @@ public class UserController {
         this.userRepository = userRepository;
     }
 
+    @PostMapping("/register")
+    public ResponseEntity<User> addNewUser(@RequestBody User user) throws CustomRuntimeException {
+        validateNewUsernameAndEmail(StringUtils.EMPTY, user.getUsername(), user.getEmail());
+        User newUser = userService.register(user);
+        return new ResponseEntity<>(newUser, HttpStatus.OK);
+    }
+
     @PostMapping("/add")
     public ResponseEntity<User> addNewUser(@RequestParam("firstName") String firstName,
                                            @RequestParam("lastName") String lastName,

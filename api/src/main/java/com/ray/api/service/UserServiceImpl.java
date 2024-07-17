@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,6 +29,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
@@ -39,12 +41,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final EmailService emailService;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, EmailService emailService) {
+    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, EmailService emailService, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.emailService = emailService;
+        this.passwordEncoder = passwordEncoder;
     }
 
 
@@ -68,10 +72,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public User addNewUser(User user, String[] role, MultipartFile profileImage) throws IOException {
         String password = RandomStringUtils.randomAlphabetic(10);
+        String encodedPassword = passwordEncoder.encode(password);
 
         user.setUserId(RandomStringUtils.randomNumeric(10));
         user.setJoinDate(new Date());
-        user.setPassword(password);
+        user.setPassword(encodedPassword);
         user.setRoles(Arrays.stream(role).map(r -> roleRepository.findRoleByName(r)).collect(Collectors.toSet()));
         user.setAuthorities(Arrays.stream(role).map(r -> roleRepository.findRoleByName(r))
                 .flatMap(ro -> ro.getAuthorities().stream()).distinct().collect(Collectors.toSet()));
@@ -103,7 +108,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             throw new CustomRuntimeException("No user found for the email: " + email);
 
         String password = RandomStringUtils.randomAlphabetic(10);
-        user.setPassword(password);
+        String encodedPassword = passwordEncoder.encode(password);
+        user.setPassword(encodedPassword);
         userRepository.save(user);
         LOGGER.info("Reset password: " + password);
         emailService.sendSimpleMessage(user.getEmail(),
@@ -120,6 +126,26 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         Path userFolder = Paths.get(FileConstant.USER_FOLDER + user.getUsername()).toAbsolutePath().normalize();
         FileUtils.deleteDirectory(new File(userFolder.toString()));
         userRepository.deleteById(id);
+    }
+
+    @Override
+    public User register(User user) {
+        String password = RandomStringUtils.randomAlphabetic(10);
+        String encodedPassword = passwordEncoder.encode(password);
+
+        user.setUserId(RandomStringUtils.randomNumeric(10));
+        user.setActive(true);
+        user.setNotLocked(true);
+        user.setJoinDate(new Date());
+        user.setPassword(encodedPassword);
+        user.setRoles(Stream.of(roleRepository.findRoleByName("ROLE_USER")).collect(Collectors.toSet()));
+        user.setAuthorities(roleRepository.findRoleByName("ROLE_USER").getAuthorities()
+                .stream().distinct().collect(Collectors.toSet()));
+        user.setProfileImageUrl(ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path(FileConstant.DEFAULT_USER_IMAGE_PATH + user.getUsername()).toUriString());
+        userRepository.save(user);
+        LOGGER.info("Random password: " + password);
+        return user;
     }
 
     private void saveProfileImage(User user, MultipartFile profileImage) throws IOException {
