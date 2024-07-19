@@ -4,6 +4,7 @@ import com.ray.api.dto.HttpResponse;
 import jakarta.persistence.NoResultException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
@@ -26,6 +27,11 @@ public class ExceptionHandling {
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<HttpResponse> noSuchElementException(NoSuchElementException e) {
         return createHttpResponse(HttpStatus.BAD_REQUEST, e.getMessage());
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<HttpResponse> accessDeniedException() {
+        return createHttpResponse(HttpStatus.FORBIDDEN, "You do not have enough permission!!");
     }
 
     @ExceptionHandler(CustomRuntimeException.class)

@@ -32,7 +32,7 @@ import java.util.Set;
 
 import static org.springframework.http.MediaType.IMAGE_JPEG_VALUE;
 
-@CrossOrigin(value = "http://localhost:3000", allowCredentials = "true")
+//@CrossOrigin(value = "http://localhost:3000", allowCredentials = "true")
 @RestController
 @RequestMapping("/api/user")
 public class UserController {

@@ -6,6 +6,7 @@ import com.ray.api.dao.UserRepository;
 import com.ray.api.entity.domain.User;
 import com.ray.api.entity.domain.UserPrincipal;
 import com.ray.api.exception.CustomRuntimeException;
+import com.ray.api.service.cache.LoginAttemptService;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
@@ -28,6 +29,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -42,13 +44,15 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private final RoleRepository roleRepository;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
+    private final LoginAttemptService loginAttemptService;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, EmailService emailService, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, EmailService emailService, PasswordEncoder passwordEncoder, LoginAttemptService loginAttemptService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.emailService = emailService;
         this.passwordEncoder = passwordEncoder;
+        this.loginAttemptService = loginAttemptService;
     }
 
 
@@ -60,6 +64,18 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             LOGGER.error("User not found by username: " + username);
             throw new RuntimeException("User not found by username: " + username);
         } else {
+            if (user.isNotLocked()) {
+                try {
+                    if (loginAttemptService.hasExceededMaxAttempts(user.getUsername())) {
+                        user.setNotLocked(false);
+                    }
+                } catch (ExecutionException e) {
+                    throw new RuntimeException(e);
+                }
+            } else {
+                loginAttemptService.evictUserFromLoginAttemptCache(user.getUsername());
+            }
+
             user.setLastLoginDateDisplay(user.getLastLoginDate());
             user.setLastLoginDate(new Date());
             userRepository.save(user);

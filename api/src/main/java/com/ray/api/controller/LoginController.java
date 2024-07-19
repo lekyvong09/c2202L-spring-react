@@ -13,7 +13,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin(value = "http://localhost:3000", allowCredentials = "true")
+//@CrossOrigin(value = "http://localhost:3000", allowCredentials = "true")
 @RestController
 @RequestMapping("/api")
 public class LoginController {

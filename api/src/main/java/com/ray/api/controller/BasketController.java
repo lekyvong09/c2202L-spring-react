@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@CrossOrigin(value = "http://localhost:3000", allowCredentials = "true")
+//@CrossOrigin(value = "http://localhost:3000", allowCredentials = "true")
 @RestController
 @RequestMapping("/api/baskets")
 public class BasketController {
